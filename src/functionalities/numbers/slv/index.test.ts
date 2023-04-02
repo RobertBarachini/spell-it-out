@@ -11,8 +11,6 @@ import { spellOut, _private } from './index.js'
 
 // TODO: Add tests for these functions
 const {
-	getGroupsOfThree,
-	sanitizeNumberString,
 	getSuffix,
 	spellOutGroupOfThree,
 	spellDecimalPart,
@@ -61,20 +59,6 @@ describe('number/slv', () => {
 					'2345909235908292390301235901409823423409890430928234098234234342290325813598'
 				)
 			}, new Error(`Number too large. Maximum supported number is ${Math.pow(10, maps.suffixes.length * 3) - 1}`))
-		})
-	})
-
-	//
-	////    getGroupsOfThree
-	//
-	describe('getGroupsOfThree', () => {
-		it(`'1234567890'`, () => {
-			assert.deepStrictEqual(getGroupsOfThree('1234567890'), [
-				'001',
-				'234',
-				'567',
-				'890',
-			])
 		})
 	})
 

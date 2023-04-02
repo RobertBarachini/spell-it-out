@@ -1,44 +1,12 @@
-// Slovenian number string to spelling converter
+// English number string to spelling converter
 
-// TODO: Move some common functions to a separate file in #utils (if used by multiple languages) - use interfaces to define the functions
 // TODO: Add jsdoc comments to all functions
+
+import { getGroupsOfThree, sanitizeNumberString } from '#utils/numbers.js'
 
 import * as maps from './maps.js'
 
-const getGroupsOfThree = (str: string): string[] => {
-	if (str === '') {
-		return ['']
-	}
-	const groupsOfThree = str
-		.split('')
-		.reverse()
-		.reduce((acc, curr, index) => {
-			const groupIndex = Math.floor(index / 3)
-			if (!acc[groupIndex]) {
-				acc[groupIndex] = []
-			}
-			acc[groupIndex].unshift(curr)
-			return acc
-		}, [])
-		.reverse()
-		.map((group) => group.join(''))
-	groupsOfThree[0] = groupsOfThree[0].padStart(3, '0')
-	return groupsOfThree
-}
-
-const sanitizeNumberString = (numberString: string): string => {
-	return numberString
-		.toString()
-		.replace(/,/g, '')
-		.replace(/ /g, '')
-		.replace(/-/g, '')
-		.replace(/^0+/, '') //.replace(/0+$/, "");
-}
-
-const getSuffix = (
-	numberStringPartsLength: number,
-	tripletValue: number
-): string => {
+const getSuffix = (numberStringPartsLength: number): string => {
 	const suffixIndex = Math.floor((numberStringPartsLength - 1) / 3)
 	if (suffixIndex >= maps.suffixes.length) {
 		throw new Error(
@@ -47,16 +15,7 @@ const getSuffix = (
 			}`
 		)
 	}
-	if (tripletValue === 1) {
-		return maps.suffixes[suffixIndex]
-	}
-	if (tripletValue === 2) {
-		return maps.suffixesDual[suffixIndex]
-	}
-	if (tripletValue >= 3) {
-		return maps.suffixesPlural[suffixIndex]
-	}
-	return ''
+	return maps.suffixes[suffixIndex]
 }
 
 const spellOutGroupOfThree = (groupOfThree: string): string => {
@@ -74,14 +33,15 @@ const spellOutGroupOfThree = (groupOfThree: string): string => {
 	if (tens === '1') {
 		result += maps.teens.get(ones)
 	} else {
+		if (tens !== '0') {
+			result += maps.tens.get(tens)
+		}
+		// Add a hyphen if tens and ones are both non-zero
+		if (tens !== '0' && ones !== '0') {
+			result += '-' // ' '
+		}
 		if (ones !== '0') {
 			result += maps.ones.get(ones)
-		}
-		if (tens !== '0') {
-			if (ones !== '0') {
-				result += 'in'
-			}
-			result += maps.tens.get(tens)
 		}
 	}
 	return result
@@ -104,8 +64,7 @@ const spellOutGroupsOfThree = (groupsOfThree: string[]): string[] => {
 		(acc: string[], curr: string, index: number) => {
 			const groupOfThreeSpelling = spellOutGroupOfThree(curr)
 			if (groupOfThreeSpelling) {
-				const groupValue = parseInt(curr)
-				let suffix = getSuffix(numberStringPartsLength - index * 3, groupValue)
+				let suffix = getSuffix(numberStringPartsLength - index * 3)
 				acc.push(`${groupOfThreeSpelling} ${suffix}`)
 			}
 			return acc
@@ -137,7 +96,7 @@ const spellOut = (numberString: string): string => {
 	// Join the spelled out whole part
 	const spelledOutWholePart = wholePartSpellingArr.join(' ')
 	// Get the decimal part
-	const decimalSpelling = spellDecimalPart(decimalPart) //spellOut(decimalPart);
+	const decimalSpelling = spellDecimalPart(decimalPart)
 	if (isNegative) {
 		result += 'minus '
 	}
@@ -145,8 +104,7 @@ const spellOut = (numberString: string): string => {
 	result += spelledOutWholePart.replace(/^ +/, '').replace(/ +$/, '')
 	// Add the decimal part
 	if (decimalSpelling) {
-		// TODO: Add additional switches for "cela" / "in" ?
-		result += ` cela ${decimalSpelling}`
+		result += ` point ${decimalSpelling}`
 	}
 	// Return the spelled out number
 	return result
@@ -154,8 +112,6 @@ const spellOut = (numberString: string): string => {
 
 // Collection of functions that are meant to be private but are exported for testing purposes
 const _private = {
-	getGroupsOfThree,
-	sanitizeNumberString,
 	getSuffix,
 	spellOutGroupOfThree,
 	spellDecimalPart,
