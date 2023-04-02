@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 
 import { describe, it } from 'mocha'
 
-import { getGroupsOfThree } from './numbers'
+import { getGroupsOfThree } from './numbers.js'
 
 describe('#utils/numbers', () => {
 	//
