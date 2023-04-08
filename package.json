@@ -1,6 +1,6 @@
 {
 	"name": "spell-it-out",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"type": "module",
 	"description": "SpellItOut is a library for writing numbers (and other things)",
 	"private": false,
